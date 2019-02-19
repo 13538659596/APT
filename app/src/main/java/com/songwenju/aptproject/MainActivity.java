@@ -1,7 +1,11 @@
 package com.songwenju.aptproject;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,7 +17,7 @@ import com.example.DIView;
 
 @AutoCreat
 @DIActivity
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     @DIView(R.id.hello)
     TextView textView;
@@ -25,8 +29,14 @@ public class MainActivity extends AppCompatActivity {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "点击", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(MainActivity.this, MainActivity_replace.class));
             }
         });
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        startActivity(new Intent(MainActivity.this, MainActivity_replace.class));
+        return super.onKeyDown(keyCode, event);
     }
 }
