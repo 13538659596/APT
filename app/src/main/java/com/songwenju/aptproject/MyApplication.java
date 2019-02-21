@@ -10,7 +10,7 @@ public class MyApplication extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
-        HookUtil hookUtil = new HookUtil(this);
+        HookUtil2 hookUtil = new HookUtil2(this);
         hookUtil.hookSystemHandler();
         hookUtil.hookAms();
     }

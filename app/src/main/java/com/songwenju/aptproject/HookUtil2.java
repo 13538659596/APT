@@ -6,21 +6,24 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.util.LogPrinter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by TheShy on 2019/2/19 10:40.
  * Email:406262584@qq.com
  */
-public class HookUtil {
+public class HookUtil2 {
 
 
     private Context context;
-    public HookUtil(Context context) {
+    public HookUtil2(Context context) {
         this.context = context;
     }
 
@@ -107,11 +110,17 @@ public class HookUtil {
                 Field intentField = obj.getClass().getDeclaredField("intent");
                 intentField.setAccessible(true);
                 Intent proxyInent = (Intent) intentField.get(obj);
-                Log.e("HookAmsUtil",proxyInent.getComponent().getClassName() + "    proxyInent//");
-                Intent realIntent = proxyInent.getParcelableExtra("oldIntent");
-                if (realIntent != null) {
-                    proxyInent.setComponent(realIntent.getComponent());
-                    Log.e("HookAmsUtil",realIntent.getComponent().getClassName() + "  //");
+                String proxyActivity = proxyInent.getComponent().getClassName();
+                Log.e("HookAmsUtil", proxyActivity + "    proxyActivityproxyInent//");
+
+                Map map = AppActivityWrapper.getInstance().get();
+                Set<String> set = map.keySet();
+                for(String key : set) {
+                    Log.e("HookAmsUtil", key);
+                    if(key.equals(proxyActivity)) {
+                        ComponentName componentName = new ComponentName(context, (String) map.get(key));
+                        proxyInent.setComponent(componentName);
+                    }
                 }
             }catch (Exception e){
                 Log.i("HookAmsUtil","lauchActivity falied");
@@ -139,27 +148,6 @@ public class HookUtil {
                 Log.e("HookUtil","小弟到此一游！！！");
             }
             return method.invoke(iActivityManagerObject, args);*/
-
-            if ("startActivity".contains(method.getName())) {
-                //换掉
-                Intent intent = null;
-                int index = 0;
-                for (int i = 0; i < args.length; i++) {
-                    Object arg = args[i];
-                    if (arg instanceof Intent) {
-                        //说明找到了startActivity的Intent参数
-                        intent = (Intent) args[i];
-                        //这个意图是不能被启动的，因为Acitivity没有在清单文件中注册
-                        index = i;
-                    }
-                }
-                //伪造一个代理的Intent，代理Intent启动的是MainActivity
-                Intent proxyIntent = new Intent();
-                ComponentName componentName = new ComponentName(context, MainActivity.class);
-                proxyIntent.setComponent(componentName);
-                proxyIntent.putExtra("oldIntent", intent);
-                args[index] = proxyIntent;
-            }
 
             return method.invoke(iActivityManagerObject, args);
         }
